@@ -1,9 +1,12 @@
 import React, { Component } from "react";
 import util from "../util";
-export default class Basket extends Component {
-  render() {
-    const { cartItems } = this.props;
+import { connect } from "react-redux";
 
+const mapStateToProps = state => ({ ...state });
+
+class Basket extends Component {
+  render() {
+    const {cartItems} = this.props;
     return (
       <div className="alert alert-info basket-container">
         {cartItems.length === 0 ? (
@@ -38,10 +41,11 @@ export default class Basket extends Component {
                 cartItems.reduce((a, c) => a + c.price * c.count, 0)
               )}
             </b>
-            <button className="btn btn-primary">checkout</button>
           </div>
         )}
       </div>
     );
   }
 }
+
+export default connect(mapStateToProps)(Basket);

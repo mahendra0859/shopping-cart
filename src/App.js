@@ -4,7 +4,16 @@ import "./App.scss";
 import Products from "./components/Products";
 import Filter from "./components/Filter";
 import Basket from "./components/Basket";
-export default class App extends Component {
+
+import { UPDATE } from "./redux/action";
+import { connect } from "react-redux";
+
+const mapStateToProps = state => ({ ...state });
+const mapDispatchToProps = dispatch => ({
+  updatestate: data => dispatch({ type: UPDATE, payload: data })
+});
+
+class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -16,11 +25,11 @@ export default class App extends Component {
     };
   }
   componentDidMount() {
-    if (localStorage.getItem("cartItems")) {
-      this.setState({
-        cartItems: JSON.parse(localStorage.getItem("cartItems"))
-      });
-    }
+    // if (localStorage.getItem("cartItems")) {
+    //   this.setState({
+    //     cartItems: JSON.parse(localStorage.getItem("cartItems"))
+    //   });
+    // }
 
     fetch("http://localhost:8080/products")
       .then(res => res.json())
@@ -58,34 +67,51 @@ export default class App extends Component {
     });
   }
   handleRemoveFromCart = (e, product) => {
-    this.setState(state => {
-      const cartItems = state.cartItems.filter(a => a.id !== product.id);
-      localStorage.setItem("cartItems", JSON.stringify(cartItems));
-      return { cartItems: cartItems };
-    });
+    // this.setState(state => {
+    //   const cartItems = state.cartItems.filter(a => a.id !== product.id);
+    //   localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    //   return { cartItems: cartItems };
+    // });
+
+    const cartItems = this.props.cartItems.filter(a => a.id !== product.id);
+    this.props.updatestate(cartItems);
   };
   handleAddToCart = (e, product) => {
-    this.setState(state => {
-      const cartItems = state.cartItems;
-      let productAlreadyInCart = false;
+    // this.setState(state => {
+    //   const cartItems = state.cartItems;
+    //   let productAlreadyInCart = false;
 
-      cartItems.forEach(cp => {
-        if (cp.id === product.id) {
-          cp.count += 1;
-          productAlreadyInCart = true;
-        }
-      });
+    //   cartItems.forEach(cp => {
+    //     if (cp.id === product.id) {
+    //       cp.count += 1;
+    //       productAlreadyInCart = true;
+    //     }
+    //   });
 
-      if (!productAlreadyInCart) {
-        cartItems.push({ ...product, count: 1 });
+    //   if (!productAlreadyInCart) {
+    //     cartItems.push({ ...product, count: 1 });
+    //   }
+    //   localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    //   return { cartItems: cartItems };
+
+    const cartItems = this.props.cartItems;
+    let productAlreadyInCart = false;
+
+    cartItems.forEach(cp => {
+      if (cp.id === product.id) {
+        cp.count += 1;
+        productAlreadyInCart = true;
       }
-      localStorage.setItem("cartItems", JSON.stringify(cartItems));
-      return { cartItems: cartItems };
     });
+
+    if (!productAlreadyInCart) {
+      cartItems.push({ ...product, count: 1 });
+    }
+    this.props.updatestate(cartItems);
   };
 
   render() {
-    const { filteredProducts, size, sort, cartItems } = this.state;
+    const { filteredProducts, size, sort } = this.state;
     return (
       <div className="container">
         <h1>E commerce react application</h1>
@@ -106,13 +132,19 @@ export default class App extends Component {
             />
           </div>
           <div className="col-md-4">
-            <Basket
+            {/* <Basket
               cartItems={cartItems}
               handleRemoveFromCart={this.handleRemoveFromCart}
-            />
+            /> */}
+            <Basket handleRemoveFromCart={this.handleRemoveFromCart} />
           </div>
         </div>
       </div>
     );
   }
 }
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);
