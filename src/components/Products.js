@@ -8,10 +8,7 @@ export default class Products extends Component {
       return (
         <div className="col-md-4" key={product.id}>
           <div className="thumbnail text-center">
-            <a
-              href={`#${product.id}`}
-              onClick={e => handleAddToCart(e, product)}
-            >
+            <a href={`#${product.id}`} onClick={e => handleAddToCart(product)}>
               <img src={`/products/${product.sku}_1.jpg`} alt={product.title} />
               <p>{product.description}</p>
             </a>
@@ -19,7 +16,7 @@ export default class Products extends Component {
               <b>{util.formatCurrency(product.price)}</b>
               <button
                 className="btn btn-primary"
-                onClick={e => handleAddToCart(e, product)}
+                onClick={e => handleAddToCart(product)}
               >
                 Add to cart
               </button>

@@ -8,95 +8,72 @@ import Filter from "./components/Filter";
 import Basket from "./components/Basket";
 
 // Actions
-import { UPDATE } from "./redux/action";
+import {
+  UPDATE_BASKET,
+  UPDATE_PRODUCTS,
+  UPDATE_FILTERED_PRODUCTS
+} from "./redux/action";
 
 // Mapping the state and
-const mapStateToProps = state => ({ ...state });
+const mapStateToProps = state => ({
+  ...state.BasketReducer,
+  ...state.ProductsReducer
+});
 const mapDispatchToProps = dispatch => ({
-  updatestate: data => dispatch({ type: UPDATE, payload: data })
+  updateBasket: data => dispatch({ type: UPDATE_BASKET, payload: data }),
+  updateProduct: data => dispatch({ type: UPDATE_PRODUCTS, payload: data }),
+  updateFilteredProduct: data =>
+    dispatch({ type: UPDATE_FILTERED_PRODUCTS, payload: data })
 });
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      products: [],
-      filteredProducts: [],
       size: "",
-      sort: "",
-      cartItems: []
+      sort: ""
     };
   }
   componentDidMount() {
-    // if (localStorage.getItem("cartItems")) {
-    //   this.setState({
-    //     cartItems: JSON.parse(localStorage.getItem("cartItems"))
-    //   });
-    // }
-
     fetch("http://localhost:8080/products")
       .then(res => res.json())
-      .then(data => this.setState({ products: data, filteredProducts: data }));
+      .then(data => {
+        this.props.updateProduct(data);
+        this.props.updateFilteredProduct(data);
+      });
   }
   handleChangeSort(e) {
-    this.setState({ sort: e.target.value });
-    this.listProducts();
+    this.setState({ sort: e.target.value }, () => this.listProducts());
   }
   handleChangeSize(e) {
-    this.setState({ size: e.target.value });
-    this.listProducts();
+    this.setState({ size: e.target.value }, () => this.listProducts());
   }
   listProducts() {
-    this.setState(state => {
-      if (state.sort !== "") {
-        state.products.sort((a, b) =>
-          state.sort === "lowest"
-            ? a.price > b.price
-              ? 1
-              : -1
-            : a.price < b.price
+    if (this.state.sort !== "") {
+      this.props.products.sort((a, b) =>
+        this.state.sort === "lowest"
+          ? a.price > b.price
             ? 1
             : -1
-        );
-      } else state.products.sort((a, b) => (a.id > b.id ? 1 : -1));
-      if (state.size !== "") {
-        return {
-          filteredProducts: state.products.filter(
-            a => a.availableSizes.indexOf(state.size.toUpperCase()) >= 0
-          )
-        };
-      }
-      return { filteredProducts: state.products };
-    });
+          : a.price < b.price
+          ? 1
+          : -1
+      );
+    } else this.props.products.sort((a, b) => (a.id > b.id ? 1 : -1));
+    if (this.state.size !== "") {
+      this.props.updateFilteredProduct(
+        this.props.products.filter(
+          a => a.availableSizes.indexOf(this.state.size.toUpperCase()) >= 0
+        )
+      );
+    }
+    this.props.updateFilteredProduct(this.props.products);
   }
-  handleRemoveFromCart = (e, product) => {
-    // this.setState(state => {
-    //   const cartItems = state.cartItems.filter(a => a.id !== product.id);
-    //   localStorage.setItem("cartItems", JSON.stringify(cartItems));
-    //   return { cartItems: cartItems };
-    // });
-
+  handleRemoveFromCart = product => {
     const cartItems = this.props.cartItems.filter(a => a.id !== product.id);
-    this.props.updatestate(cartItems);
+    this.props.updateBasket(cartItems);
   };
-  handleAddToCart = (e, product) => {
-    // this.setState(state => {
-    //   const cartItems = state.cartItems;
-    //   let productAlreadyInCart = false;
-
-    //   cartItems.forEach(cp => {
-    //     if (cp.id === product.id) {
-    //       cp.count += 1;
-    //       productAlreadyInCart = true;
-    //     }
-    //   });
-
-    //   if (!productAlreadyInCart) {
-    //     cartItems.push({ ...product, count: 1 });
-    //   }
-    //   localStorage.setItem("cartItems", JSON.stringify(cartItems));
-    //   return { cartItems: cartItems };
-
+  handleAddToCart = product => {
     const cartItems = this.props.cartItems;
     let productAlreadyInCart = false;
 
@@ -110,11 +87,12 @@ class App extends Component {
     if (!productAlreadyInCart) {
       cartItems.push({ ...product, count: 1 });
     }
-    this.props.updatestate(cartItems);
+    this.props.updateBasket(cartItems);
   };
 
   render() {
-    const { filteredProducts, size, sort } = this.state;
+    const { size, sort } = this.state,
+      { filteredProducts } = this.props;
     return (
       <div className="container">
         <h1>E commerce react application</h1>
@@ -135,10 +113,6 @@ class App extends Component {
             />
           </div>
           <div className="col-md-4">
-            {/* <Basket
-              cartItems={cartItems}
-              handleRemoveFromCart={this.handleRemoveFromCart}
-            /> */}
             <Basket handleRemoveFromCart={this.handleRemoveFromCart} />
           </div>
         </div>

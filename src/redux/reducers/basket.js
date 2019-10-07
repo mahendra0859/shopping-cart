@@ -1,4 +1,4 @@
-import { UPDATE } from "./action";
+import { UPDATE_BASKET } from "../action";
 
 const initialState = {
   cartItems: []
@@ -6,7 +6,7 @@ const initialState = {
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
-    case UPDATE:
+    case UPDATE_BASKET:
       return { cartItems: [...action.payload] };
     default:
       return state;

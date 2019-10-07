@@ -1,12 +1,12 @@
 import React, { Component } from "react";
-import util from "../util";
 import { connect } from "react-redux";
+import util from "../util";
 
-const mapStateToProps = state => ({ ...state });
+const mapStateToProps = state => ({ ...state.BasketReducer });
 
 class Basket extends Component {
   render() {
-    const {cartItems} = this.props;
+    const { cartItems } = this.props;
     return (
       <div className="alert alert-info basket-container">
         {cartItems.length === 0 ? (
@@ -25,7 +25,7 @@ class Basket extends Component {
                   <button
                     style={{ float: "right" }}
                     className="btn btn-danger btn-xs"
-                    onClick={e => this.props.handleRemoveFromCart(e, item)}
+                    onClick={e => this.props.handleRemoveFromCart(item)}
                   >
                     X
                   </button>
