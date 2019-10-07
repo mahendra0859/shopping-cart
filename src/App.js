@@ -61,13 +61,11 @@ class App extends Component {
       );
     } else this.props.products.sort((a, b) => (a.id > b.id ? 1 : -1));
     if (this.state.size !== "") {
-      this.props.updateFilteredProduct(
-        this.props.products.filter(
-          a => a.availableSizes.indexOf(this.state.size.toUpperCase()) >= 0
-        )
+      const data = this.props.products.filter(
+        a => a.availableSizes.indexOf(this.state.size.toUpperCase()) >= 0
       );
-    }
-    this.props.updateFilteredProduct(this.props.products);
+      this.props.updateFilteredProduct(data);
+    } else this.props.updateFilteredProduct(this.props.products);
   }
   handleRemoveFromCart = product => {
     const cartItems = this.props.cartItems.filter(a => a.id !== product.id);
@@ -107,10 +105,7 @@ class App extends Component {
               count={filteredProducts.length}
             />
             <hr />
-            <Products
-              products={filteredProducts}
-              handleAddToCart={this.handleAddToCart}
-            />
+            <Products handleAddToCart={this.handleAddToCart} />
           </div>
           <div className="col-md-4">
             <Basket handleRemoveFromCart={this.handleRemoveFromCart} />
