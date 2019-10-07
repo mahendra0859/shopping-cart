@@ -1,13 +1,16 @@
 import React, { Component } from "react";
 import "./App.scss";
+import { connect } from "react-redux";
 
+// Child Components
 import Products from "./components/Products";
 import Filter from "./components/Filter";
 import Basket from "./components/Basket";
 
+// Actions
 import { UPDATE } from "./redux/action";
-import { connect } from "react-redux";
 
+// Mapping the state and
 const mapStateToProps = state => ({ ...state });
 const mapDispatchToProps = dispatch => ({
   updatestate: data => dispatch({ type: UPDATE, payload: data })
